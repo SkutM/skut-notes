@@ -3,22 +3,31 @@
 # Blueprint --> defines route section
 # request --> gives access to request data (like JSON)
 from flask import Blueprint, request, abort
+# didn't ... know ... new!
+from flask_jwt_extended import jwt_required, get_jwt_identity
 # db & Note --> let us interact w the db
 from app.models import db, Note
 
-# create mini Flask app dedicated to /api/notes
-notes_bp = Blueprint("notes", __name__, url_prefix="/api/notes")
+notes_bp = Blueprint("notes", __name__, url_prefix="/api")
 
-# get_notes handles GET /api/notes --> returns full list as JSON
 @notes_bp.get("/<int:user_id>/notes")
+@jwt_required()
 def get_notes(user_id):
-    # change to reflect relationships
-    notes = Note.query.filter_by(user_id=user_id)
+    current_user = int(get_jwt_identity()) # see _ensure_ownership comment
+
+    if current_user != user_id:
+        abort(403, description="You are not authorized to view these notes")
+
+    notes = Note.query.filter_by(user_id=user_id).all()
     return {"notes": [note.to_dict() for note in notes]}
 
 # add_note handles POST /api/notes --> expects JSON like {"test": "Buy milk"}
 @notes_bp.post("/<int:user_id>/notes")
+@jwt_required()
 def create_note(user_id):
+    # jwt additions
+    _ensure_owner(user_id)
+    # end of jwt additions
     data = request.get_json()
     text = data.get("text")
 
@@ -29,15 +38,17 @@ def create_note(user_id):
     db.session.add(new_note) # stage for saving
     db.session.commit() # write change to notes.db
 
-    return {"message": "Note added!", "notes": new_note.to_dict()}, 201
+    return {"message": "Note added!", "note": new_note.to_dict()}, 201
 
 @notes_bp.put("/<int:user_id>/notes/<int:note_id>")
+@jwt_required()
 def put_note(user_id, note_id):
-    # get current note content
+    # jwt additions
+    _ensure_owner(user_id)
+    # end of jwt additions
     data = request.get_json()
     text = data.get("text")
 
-    # check if 404 or set note = old note (to be replaced)
     note = get_note_or_404(user_id, note_id)
 
     if not text:
@@ -46,13 +57,14 @@ def put_note(user_id, note_id):
     note.text = text
     db.session.commit()
     
-    # update that in dict, 200 = success
     return note.to_dict(), 200
 
-
 @notes_bp.delete("/<int:user_id>/notes/<int:note_id>")
+@jwt_required()
 def delete_note(user_id, note_id):
-    # does note exist? if yes, to be deleted
+    # jwt additions
+    _ensure_owner(user_id)
+    # end of jwt additions
     note = get_note_or_404(user_id, note_id)
     db.session.delete(note)
     db.session.commit()
@@ -60,11 +72,17 @@ def delete_note(user_id, note_id):
     return "", 204
 
 def get_note_or_404(user_id, note_id):
-    # updated since relationship
     note = Note.query.filter_by(id=note_id, user_id=user_id).first()
     if note is None:
         abort(404, description=f"Note {note_id} not found for user {user_id}")
     return note
+
+# handles jwt ownership
+def _ensure_owner(user_id):
+    current_user = int(get_jwt_identity()) # str -> int now that auth changed identity to str(identity)
+    if current_user != user_id:
+        abort(403, description="You are not authorized to modify these notes")
+
 
 # 200 --> OK (normal successful response)
 # 201 --> Created (when something new was successfully made)

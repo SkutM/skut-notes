@@ -4,21 +4,30 @@
 from flask import Flask
 # imports db object we created in models.py
 from app.models import db
+from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
+from datetime import timedelta
 
 def create_app():
     app = Flask(__name__) # flask application object
 
-    # "Use SQLite, and store the data in a file named notes.db
-    # in this project folder."
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notes.db"
     # performance setting -- don't track every db change in memory
     # i.e., think of it as "turning off extra logging"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["JWT_SECRET_KEY"] = "super-secret-key"
+
+    # new config for tokens
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
+
+    jwt = JWTManager(app)
 
     # plugs db engine into Flask app
     # "Here's the Flask app to work with. Use its configuration
     # (like the URI above) whenever you create or query data"
     db.init_app(app)
+    # new for tokens...?
+    jwt.init_app(app)
 
     # "Use this Flask's app's settings while I run the next few
     # lines."
@@ -32,10 +41,12 @@ def create_app():
     def root():
         return {"message": "Hello from Cloud Notes!"}
     
-    from app.routes.notes import notes_bp # after flask import -->
-                                # first ensure Flask app exists!
-    # "Take all the routes defined inside this blueprint & attach
-    # them to the main app -- under the URL prefix /api/notes"
+    from app.routes.notes import notes_bp # if defined earlier,
+    
+    #now import from auth
+    from app.routes.auth import auth_bp
     app.register_blueprint(notes_bp)
+    # new for auth
+    app.register_blueprint(auth_bp)
 
     return app
