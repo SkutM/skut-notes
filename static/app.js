@@ -56,7 +56,7 @@ document.getElementById("login-btn").addEventListener("click", async () => {
             localStorage.setItem("user_id", data.user_id); // handled in auth.py, as well
             log(`Login successful! Tokens stored.`, data);
             document.getElementById("notes-section").classList.remove("hidden");
-            document.getElementById("logout-btn").style.display = "inline-block"; // show logout
+            document.getElementById("logout-btn").classList.remove("hidden"); // show logout
             getNotes();
         } else {
             log(`Login failed (${res.status}):`, data);
@@ -73,7 +73,8 @@ document.getElementById("login-btn").addEventListener("click", async () => {
 document.getElementById("logout-btn").addEventListener("click", () => {
     localStorage.clear();
     document.getElementById("notes-section").classList.add("hidden");
-    document.getElementById("logout-btn").style.display = "none";
+    document.getElementById("logout-btn").classList.add("hidden");
+
     log("Logged out succesfully");
 });
 
