@@ -5,15 +5,15 @@ A **secure notes app** built with **Flask** and **JWT authentication**, with a f
 
 ## Features
 
-- **JWT Auth** -- Register, log in, and ability to stay logged in using access & refresh tokens
+- **JWT Auth** - Register, log in, and ability to stay logged in using access & refresh tokens
 
-- **CRUD Notes API** -- Create, read, update, and delete notes
+- **CRUD Notes API** - Create, read, update, and delete notes
 
-- **Flask Blueprints** -- Organized modular routes (`auth`, `notes`)
+- **Flask Blueprints** - Organized modular routes (`auth`, `notes`)
 
-- **SQLite Database** -- Persistent storage layer
+- **SQLite Database** - Persistent storage layer
 
-- **Deployed on Render** -- Ready for live demo
+- **Deployed on Render** - Ready for live demo
 
 ---
 
@@ -59,6 +59,8 @@ python run.py
 ```
 
 Then open http://127.0.0.1:5000 in your browser!
+
+---
 
 ## API Endpoints
 
