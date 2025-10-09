@@ -1,8 +1,6 @@
 ## "What users interact with" -- defines what a note *is*
 
 from flask_sqlalchemy import SQLAlchemy
-# These two come with Flask (via Werkzeug) & are industry
-# standard way to hash and verify passwords
 from werkzeug.security import generate_password_hash, check_password_hash
 
 db = SQLAlchemy()

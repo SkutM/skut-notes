@@ -55,7 +55,7 @@ document.getElementById("login-btn").addEventListener("click", async () => {
             localStorage.setItem("refresh_token", data.refresh_token);
             localStorage.setItem("user_id", data.user_id); // handled in auth.py, as well
             log(`Login successful! Tokens stored.`, data);
-            document.getElementById("notes-section").style.display = "block";
+            document.getElementById("notes-section").classList.remove("hidden");
             document.getElementById("logout-btn").style.display = "inline-block"; // show logout
             getNotes();
         } else {
@@ -72,7 +72,7 @@ document.getElementById("login-btn").addEventListener("click", async () => {
 // logout
 document.getElementById("logout-btn").addEventListener("click", () => {
     localStorage.clear();
-    document.getElementById("notes-section").style.display = "none";
+    document.getElementById("notes-section").classList.add("hidden");
     document.getElementById("logout-btn").style.display = "none";
     log("Logged out succesfully");
 });
@@ -141,7 +141,10 @@ async function getNotes() {
                 const editBtn = document.createElement("button");
                 editBtn.textContent = "Edit";
                 editBtn.addEventListener("click", () => {
-                    const newText = prompt("Edit note:", note.text);
+                    // fixing issue with edit note
+                    // not reflecting (see currentText)
+                    const currentText = div.firstChild.textContent;
+                    const newText = prompt("Edit note:", currentText);
                     if (newText && newText.trim() !== "") {
                         updateNote(note.id, newText);
                     }
@@ -156,7 +159,7 @@ async function getNotes() {
 
                 div.appendChild(editBtn);
                 div.appendChild(delBtn);
-                container.appendChild(div);
+                container.prepend(div);
             });
             log("Fetched notes successfully:", data);
         } else {
