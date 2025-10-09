@@ -1,0 +1,1 @@
+web: genicorn run:app
