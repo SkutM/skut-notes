@@ -45,18 +45,18 @@ def create_app():
         # checks all models (like Note) & creates tables for them
         # in the db file (notes.db) *if they don't exist yet*
         db.create_all() # ensures tables from models.py exist
-
-    @app.route("/")
-    def serve_index():
-        return send_from_directory(app.static_folder, "index.html")
     
     from app.routes.notes import notes_bp # if defined earlier,
     
     #now import from auth
     from app.routes.auth import auth_bp
-    app.register_blueprint(notes_bp)
+    app.register_blueprint(notes_bp, url_prefix="/api")
     # new for auth
-    app.register_blueprint(auth_bp)
+    app.register_blueprint(auth_bp, url_prefix="/api")
+
+    @app.route("/")
+    def serve_index():
+        return send_from_directory(app.static_folder, "index.html")
 
     return app
 
