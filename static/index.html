@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>skut-notes -- API Demo</title>
+</head>
+<body>
+    <h1>skut-notes</h1>
+    <p>A simple client to talk to Flask API</p>
+
+    <h2>Register</h2>
+    <input id="reg-username" placeholder="username" />
+    <input id="reg-password" placeholder="password" type="password" />
+    <button id="register-btn">Register</button>
+
+    <h2>Login</h2>
+    <input id="login-username" placeholder="username" />
+    <input id="login-password" placeholder="password" type="password" />
+    <button id="login-btn">Login</button>
+
+    <button id="logout-btn" style="display:none;">Logout</button>
+
+    <div id="notes-section" style="display:none;">
+        <h2>Notes</h2>
+        <input id="note-input" placeholder="Write a note..." />
+        <button id="create-note-btn">Add Note</button>
+        <div id="notes-container"></div>
+    </div>
+
+    <h3>Output</h3>
+    <pre id="output"></pre>
+
+    <script src="app.js"></script>
+    
+</body>
+</html>

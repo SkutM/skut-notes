@@ -6,9 +6,19 @@ from flask import Flask
 from app.models import db
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from datetime import timedelta
+from pathlib import Path # for getting right dir (see below)
+from werkzeug.exceptions import HTTPException
+from flask_cors import CORS
 
 def create_app():
-    app = Flask(__name__) # flask application object
+    # this is the "see below":
+    # app = Flask(__name__) expects static WITHIN /app/static/
+    # but! it is not there -- it is in the parent
+    # "No, my static files are in the project *root*, not inside
+    # the app package."
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    app = Flask(__name__, static_folder=str(BASE_DIR / "static")) # flask application object
+    CORS(app) # enable CORS for all routes
 
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notes.db"
     # performance setting -- don't track every db change in memory
@@ -50,3 +60,4 @@ def create_app():
     app.register_blueprint(auth_bp)
 
     return app
+

@@ -16,7 +16,7 @@ def get_notes(user_id):
     current_user = int(get_jwt_identity()) # see _ensure_ownership comment
 
     if current_user != user_id:
-        abort(403, description="You are not authorized to view these notes")
+        return {"error": "You are not authorized to view these notes"}, 403
 
     notes = Note.query.filter_by(user_id=user_id).all()
     return {"notes": [note.to_dict() for note in notes]}
@@ -74,14 +74,14 @@ def delete_note(user_id, note_id):
 def get_note_or_404(user_id, note_id):
     note = Note.query.filter_by(id=note_id, user_id=user_id).first()
     if note is None:
-        abort(404, description=f"Note {note_id} not found for user {user_id}")
+        return {"error": f"Note {note_id} not found for user {user_id}"}, 403
     return note
 
 # handles jwt ownership
 def _ensure_owner(user_id):
     current_user = int(get_jwt_identity()) # str -> int now that auth changed identity to str(identity)
     if current_user != user_id:
-        abort(403, description="You are not authorized to modify these notes")
+        return {"error": "You are not authorized to modify these notes"}, 403
 
 
 # 200 --> OK (normal successful response)

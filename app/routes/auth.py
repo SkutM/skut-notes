@@ -22,13 +22,13 @@ def register():
     password = data.get("password")
 
     if not username or not password:
-        abort(400, description="Username and password are required")
+        return {"error": "Username and password are required"}, 400
 
     # user is either a User object (if exists) or None (if DNE)
     existing_user = User.query.filter_by(username=username).first()
 
     if existing_user is not None:
-        abort(400, description="Username '{username}' already exists")
+        return {"error": f"Username '{username}' already exists"}, 400
 
     # otherwise, create new user
     user = User(username=username)
@@ -45,17 +45,17 @@ def login():
     password = data.get("password")
 
     if not username or not password:
-        abort(400, description="Username and password are required")
+        return {"error": "Username and password are required"}, 400
     
     # find user
     user = User.query.filter_by(username=username).first()
     if user is None:
-        abort(404, description=f"Username '{username}' does not exist")
+        return {"error": f"Username '{username}' does not exist"}, 404
 
     # otherwise, check password and verify
 
     if not user.check_password(password):
-        abort(401, description="Password does not match")
+        return {"error": "Invalid password"}, 401
     # db.session.commit() only for data changes
 
     # tokens
@@ -64,7 +64,9 @@ def login():
 
     return {
         "access_token": access_token,
-        "refresh_token": refresh_token
+        "refresh_token": refresh_token,
+        # adding "user_id" for js not detecting login when making note
+        "user_id": user.id
     }, 200
 
     # return {"message": f"Welcome back, {username}!"}, 200 -- primitive
