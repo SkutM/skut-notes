@@ -64,7 +64,6 @@ document.getElementById("login-btn").addEventListener("click", async () => {
     } catch (err) {
         log ("Error during login:", err);
     } finally {
-        // for login button
         loginBtn.disabled = false;
     }
     
@@ -96,7 +95,6 @@ document.getElementById("create-note-btn").addEventListener("click", async () =>
     }
     const text = document.getElementById("note-input").value;
 
-    // create btn
     const createBtn = document.getElementById("create-note-btn");
     createBtn.disabled = true;
 
@@ -156,10 +154,8 @@ async function getNotes() {
                     deleteNote(note.id);
                 });
 
-                // Add to DOM
                 div.appendChild(editBtn);
                 div.appendChild(delBtn);
-                // was here before (below)
                 container.appendChild(div);
             });
             log("Fetched notes successfully:", data);
@@ -203,7 +199,6 @@ async function updateNote(noteId, newText) {
         if (res.ok) {
             log(`Updated note ${noteId}`, data)
             // reflecting note change immediately
-            // *next to edit and del buttons, not output (that's fine)*
             const noteElements = document.querySelectorAll("#notes-container div");
             noteElements.forEach(div => {
                 if (div.dataset.noteId == noteId) {

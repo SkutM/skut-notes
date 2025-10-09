@@ -47,33 +47,23 @@ def login():
     if not username or not password:
         return {"error": "Username and password are required"}, 400
     
-    # find user
     user = User.query.filter_by(username=username).first()
     if user is None:
         return {"error": f"Username '{username}' does not exist"}, 404
-
-    # otherwise, check password and verify
 
     if not user.check_password(password):
         return {"error": "Invalid password"}, 401
     # db.session.commit() only for data changes
 
-    # tokens
     access_token = create_access_token(identity=str(user.id))
     refresh_token = create_refresh_token(identity=str(user.id))
 
     return {
         "access_token": access_token,
         "refresh_token": refresh_token,
-        # adding "user_id" for js not detecting login when making note
         "user_id": user.id
     }, 200
 
-    # return {"message": f"Welcome back, {username}!"}, 200 -- primitive
-    # access_token = create_access_token(identity=str(user.id)) # change -- now above
-    # return {"access_token": access_token}, 200 --- now above
-
-# called by clients when access token has expired. FOR FUTURE!
 @auth_bp.post("/refresh")
 @jwt_required(refresh=True)
 def refresh():

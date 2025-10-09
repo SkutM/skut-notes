@@ -2,7 +2,6 @@
 ## database together
 
 from flask import Flask, send_from_directory
-# imports db object we created in models.py
 from app.models import db
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
 from datetime import timedelta
@@ -11,47 +10,32 @@ from werkzeug.exceptions import HTTPException
 from flask_cors import CORS
 
 def create_app():
-    # this is the "see below":
-    # app = Flask(__name__) expects static WITHIN /app/static/
-    # but! it is not there -- it is in the parent
-    # "No, my static files are in the project *root*, not inside
-    # the app package."
     BASE_DIR = Path(__file__).resolve().parent.parent
     app = Flask(__name__, static_folder=str(BASE_DIR / "static")) # flask application object
-    CORS(app) # enable CORS for all routes
+    CORS(app)
 
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///notes.db"
     # performance setting -- don't track every db change in memory
     # i.e., think of it as "turning off extra logging"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
     app.config["JWT_SECRET_KEY"] = "super-secret-key"
-
-    # new config for tokens
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
 
     jwt = JWTManager(app)
 
-    # plugs db engine into Flask app
-    # "Here's the Flask app to work with. Use its configuration
-    # (like the URI above) whenever you create or query data"
     db.init_app(app)
-    # new for tokens...?
     jwt.init_app(app)
 
     # "Use this Flask's app's settings while I run the next few
     # lines."
     with app.app_context():
-        # checks all models (like Note) & creates tables for them
-        # in the db file (notes.db) *if they don't exist yet*
         db.create_all() # ensures tables from models.py exist
     
-    from app.routes.notes import notes_bp # if defined earlier,
-    
-    #now import from auth
+    from app.routes.notes import notes_bp
     from app.routes.auth import auth_bp
+
     app.register_blueprint(notes_bp, url_prefix="/api")
-    # new for auth
     app.register_blueprint(auth_bp, url_prefix="/api")
 
     @app.route("/")

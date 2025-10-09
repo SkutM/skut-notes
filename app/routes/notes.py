@@ -1,11 +1,7 @@
 ## "How users interact" -- adds, reads, deletes
 
-# Blueprint --> defines route section
-# request --> gives access to request data (like JSON)
 from flask import Blueprint, request, abort
-# didn't ... know ... new!
 from flask_jwt_extended import jwt_required, get_jwt_identity
-# db & Note --> let us interact w the db
 from app.models import db, Note
 
 notes_bp = Blueprint("notes", __name__, url_prefix="/api")
@@ -13,7 +9,7 @@ notes_bp = Blueprint("notes", __name__, url_prefix="/api")
 @notes_bp.get("/<int:user_id>/notes")
 @jwt_required()
 def get_notes(user_id):
-    current_user = int(get_jwt_identity()) # see _ensure_ownership comment
+    current_user = int(get_jwt_identity())
 
     if current_user != user_id:
         return {"error": "You are not authorized to view these notes"}, 403
@@ -25,9 +21,7 @@ def get_notes(user_id):
 @notes_bp.post("/<int:user_id>/notes")
 @jwt_required()
 def create_note(user_id):
-    # jwt additions
     _ensure_owner(user_id)
-    # end of jwt additions
     data = request.get_json()
     text = data.get("text")
 
@@ -43,9 +37,7 @@ def create_note(user_id):
 @notes_bp.put("/<int:user_id>/notes/<int:note_id>")
 @jwt_required()
 def put_note(user_id, note_id):
-    # jwt additions
     _ensure_owner(user_id)
-    # end of jwt additions
     data = request.get_json()
     text = data.get("text")
 
@@ -62,9 +54,7 @@ def put_note(user_id, note_id):
 @notes_bp.delete("/<int:user_id>/notes/<int:note_id>")
 @jwt_required()
 def delete_note(user_id, note_id):
-    # jwt additions
     _ensure_owner(user_id)
-    # end of jwt additions
     note = get_note_or_404(user_id, note_id)
     db.session.delete(note)
     db.session.commit()
@@ -79,7 +69,7 @@ def get_note_or_404(user_id, note_id):
 
 # handles jwt ownership
 def _ensure_owner(user_id):
-    current_user = int(get_jwt_identity()) # str -> int now that auth changed identity to str(identity)
+    current_user = int(get_jwt_identity())
     if current_user != user_id:
         return {"error": "You are not authorized to modify these notes"}, 403
 
