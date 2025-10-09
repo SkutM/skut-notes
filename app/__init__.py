@@ -1,7 +1,7 @@
 ## "Where it all connects" -- creates the app and ties routes +
 ## database together
 
-from flask import Flask
+from flask import Flask, send_from_directory
 # imports db object we created in models.py
 from app.models import db
 from flask_jwt_extended import JWTManager, jwt_required, get_jwt_identity
@@ -46,10 +46,9 @@ def create_app():
         # in the db file (notes.db) *if they don't exist yet*
         db.create_all() # ensures tables from models.py exist
 
-    @app.get("/") # when someone sends a GET request to path /
-                  # run the function below (when http:// called)
-    def root():
-        return {"message": "Hello from Cloud Notes!"}
+    @app.route("/")
+    def serve_index():
+        return send_from_directory(app.static_folder, "index.html")
     
     from app.routes.notes import notes_bp # if defined earlier,
     
